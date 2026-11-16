@@ -2,13 +2,11 @@
 <?php
 
 require_once __DIR__ . '/../../models/tagihanPenghuni.php';
-require_once __DIR__ . '/../../models/pembayaran.php';
 
 $namaPenghuni = $_SESSION['nama'] ?? 'Penghuni';
 $penghuni_id = (int) ($_SESSION['penghuni_id'] ?? 0);
 
 $daftarTagihan = TagihanPenghuni::semua($penghuni_id);
-$daftarRekening = Pembayaran::rekening();
 
 function rupiahPembayaran($angka)
 {
@@ -37,9 +35,7 @@ function namaBulanPembayaran($bulan)
         12 => 'Desember'
     ];
 
-    $angkaBulan = (int) $bulan;
-
-    return $namaBulan[$angkaBulan] ?? '-';
+    return $namaBulan[(int) $bulan] ?? '-';
 }
 
 ?>
@@ -86,9 +82,14 @@ function namaBulanPembayaran($bulan)
             border-radius: 7px;
         }
 
-        .sidebar a:hover,
+        .sidebar a:hover {
+            background: #e5e7eb;
+            color: #263247;
+        }
+
         .sidebar a.active {
-            background: #31558b;
+            background: transparent;
+            color: white;
         }
 
         .main {
@@ -112,26 +113,18 @@ function namaBulanPembayaran($bulan)
             box-shadow: 0 3px 12px rgba(0,0,0,.05);
         }
 
-        .rekening {
-            background: #edf4ff;
-            border-left: 4px solid #315fa5;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 6px;
-        }
-
         label {
             display: block;
             margin: 12px 0 7px;
             font-weight: bold;
         }
 
-        select,
-        input[type=file] {
+        select {
             width: 100%;
             padding: 11px;
             border: 1px solid #d5dce8;
             border-radius: 7px;
+            background: white;
         }
 
         button {
@@ -152,6 +145,15 @@ function namaBulanPembayaran($bulan)
             font-size: 22px;
             font-weight: bold;
             color: #2457a6;
+        }
+
+        .informasi-transfer {
+            background: #edf4ff;
+            border-left: 4px solid #315fa5;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            line-height: 1.6;
         }
 
         .alert {
@@ -216,6 +218,7 @@ function namaBulanPembayaran($bulan)
 
     <div class="header">
         <h1>Pembayaran Tagihan</h1>
+
         <p>
             Halo, <?= ePembayaran($namaPenghuni); ?>.
             Silakan lakukan pembayaran tagihan kos.
@@ -224,7 +227,7 @@ function namaBulanPembayaran($bulan)
 
     <?php if (isset($_GET['berhasil'])): ?>
         <div class="alert">
-            Pengajuan pembayaran berhasil dikirim.
+            Pengajuan pembayaran Cash berhasil dikirim.
             Silakan tunggu verifikasi admin.
         </div>
     <?php endif; ?>
@@ -267,7 +270,6 @@ function namaBulanPembayaran($bulan)
             <form
                 action="index.php?page=pembayaran-penghuni"
                 method="POST"
-                enctype="multipart/form-data"
             >
 
                 <input
@@ -286,63 +288,22 @@ function namaBulanPembayaran($bulan)
 
                 <div class="informasi-transfer" style="display:none;">
 
-                    <div class="rekening">
+                    <strong>Pembayaran melalui Midtrans</strong>
 
-                        <strong>Rekening Pembayaran</strong>
+                    <p>
+                        Setelah menekan tombol Bayar Sekarang,
+                        kamu akan diarahkan ke halaman pembayaran Midtrans.
+                    </p>
 
-                        <?php if (count($daftarRekening) > 0): ?>
-
-                            <?php foreach ($daftarRekening as $rekening): ?>
-
-                                <hr>
-
-                                <p>
-                                    Bank:
-                                    <?= ePembayaran($rekening['nama_bank']); ?>
-                                </p>
-
-                                <p>
-                                    Nomor Rekening:
-                                    <strong>
-                                        <?= ePembayaran($rekening['nomor_rekening']); ?>
-                                    </strong>
-                                </p>
-
-                                <p>
-                                    Atas Nama:
-                                    <?= ePembayaran($rekening['atas_nama']); ?>
-                                </p>
-
-                            <?php endforeach; ?>
-
-                        <?php else: ?>
-
-                            <p>
-                                Informasi rekening belum tersedia.
-                                Silakan hubungi admin.
-                            </p>
-
-                        <?php endif; ?>
-
-                    </div>
-
-                    <label>Upload Bukti Transfer</label>
-
-                    <input
-                        type="file"
-                        name="bukti_transfer"
-                        accept=".jpg,.jpeg,.png"
-                        class="bukti"
-                    >
-
-                    <small>
-                        Format JPG, JPEG, atau PNG. Maksimal 2 MB.
-                    </small>
+                    <p>
+                        Kamu dapat memilih metode pembayaran yang tersedia
+                        pada halaman Midtrans.
+                    </p>
 
                 </div>
 
                 <button type="submit">
-                    Ajukan Pembayaran
+                    Bayar Sekarang
                 </button>
 
             </form>
@@ -368,16 +329,13 @@ document.querySelectorAll('form').forEach(function(form) {
 
     const metode = form.querySelector('.metode');
     const informasi = form.querySelector('.informasi-transfer');
-    const bukti = form.querySelector('.bukti');
 
     metode.addEventListener('change', function() {
 
         if (this.value === 'Transfer') {
             informasi.style.display = 'block';
-            bukti.required = true;
         } else {
             informasi.style.display = 'none';
-            bukti.required = false;
         }
 
     });

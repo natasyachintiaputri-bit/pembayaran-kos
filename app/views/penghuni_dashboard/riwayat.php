@@ -1,3 +1,4 @@
+
 <?php
 
 $namaPenghuni = $_SESSION['nama'] ?? 'Penghuni';
@@ -10,6 +11,26 @@ function rupiahRiwayat($angka)
 function eRiwayat($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
+function namaBulanRiwayat($bulan)
+{
+    $namaBulan = [
+        1 => 'Januari',
+        2 => 'Februari',
+        3 => 'Maret',
+        4 => 'April',
+        5 => 'Mei',
+        6 => 'Juni',
+        7 => 'Juli',
+        8 => 'Agustus',
+        9 => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember'
+    ];
+
+    return $namaBulan[(int) $bulan] ?? '-';
 }
 
 ?>
@@ -227,7 +248,7 @@ function eRiwayat($value)
                             </td>
 
                             <td>
-                                <?= eRiwayat($data['bulan']); ?>
+                                <?= namaBulanRiwayat($data['bulan']); ?>
                                 <?= eRiwayat($data['tahun']); ?>
                             </td>
 
